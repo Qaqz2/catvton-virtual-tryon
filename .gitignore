@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+
+# 虚拟环境（太大，不入 Git）
+env/
+.conda/
+
+# 模型权重（太大，单独下载）
+models/
+
+# 预下载的 wheel 文件（太大，单独下载）
+wheels/
+
+# IDE
+.vscode/
+.idea/
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 运行时产物
+app_run.log
+outputs/

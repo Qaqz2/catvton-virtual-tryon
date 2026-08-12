@@ -1,0 +1,37 @@
+# ============================================================
+# AI 虚拟试衣项目 — 依赖清单（版本已锁定）
+# ============================================================
+# 重要：不要直接 pip install -r requirements.txt
+# torch 和 gradio 需要先手动安装 wheel（见 README.md 部署步骤）
+# ============================================================
+
+# ---- Web 界面（用 wheels/ 里的 wheel 安装，不要从 PyPI 装）----
+# pip install wheels/gradio-4.44.1-py3-none-any.whl wheels/gradio_client-1.3.0-py3-none-any.whl
+gradio==4.44.1
+gradio_client==1.3.0
+
+# ---- 扩散模型核心（版本必须精确，太新会不兼容）----
+diffusers==0.24.0
+transformers==4.36.2
+huggingface_hub==0.20.3
+tokenizers==0.15.2
+accelerate==1.14.0
+
+# ---- 图像处理 ----
+pillow==10.4.0
+numpy==2.2.6
+opencv-python==5.0.0.93
+scipy==1.15.3
+scikit-image==0.25.2
+
+# ---- 工具库 ----
+modelscope==1.39.1
+einops==0.8.2
+tqdm==4.70.0
+matplotlib==3.10.9
+
+# ---- Gradio 的 Web 依赖（gradio 会自动装，但如果出问题手动固定）----
+pydantic==2.9.2
+pydantic_core==2.23.4
+fastapi==0.115.6
+starlette==0.41.3
