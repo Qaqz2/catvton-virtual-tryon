@@ -61,11 +61,20 @@ python app.py
 ## 项目结构
 
 ```
-├── app.py          # Gradio 界面，运行入口
-├── tryon.py        # 模型加载 + 试穿推理
+├── app.py               # Gradio 界面，运行入口
+├── tryon.py             # 模型加载 + 试穿推理
 ├── requirements.txt
-├── CatVTON/        # 上游模型代码（做了少量改动）
-└── models/         # 模型权重，太大不入库，需自行下载
+├── README.md
+├── CatVTON/
+│   ├── utils.py
+│   └── model/
+│       ├── pipeline.py        # 扩散模型推理
+│       ├── cloth_masker.py    # 生成换衣蒙版
+│       ├── attn_processor.py  # 把衣物特征注入注意力层
+│       ├── utils.py           # 图像缩放裁剪工具
+│       ├── SCHP/              # 人体解析（分出衣服/皮肤/四肢）
+│       └── DensePose/         # 姿态检测（detectron2 装不动，用了桩实现）
+└── models/              # 模型权重，不入库，下载方法见上文
 ```
 
 - 推理统一用 fp16 半精度，6G 显存可以正常跑。
