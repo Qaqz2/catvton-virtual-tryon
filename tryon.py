@@ -109,8 +109,8 @@ def try_on(
     num_inference_steps=30,
     guidance_scale=3.0,
     seed=42,
-    width=512,
-    height=768,
+    width=640,
+    height=960,
     progress_callback=None,
 ):
     if _pipeline is None:
@@ -119,33 +119,45 @@ def try_on(
     from utils import resize_and_crop, resize_and_padding
     import torch
 
-    # 人物图统一裁到 512x768
-    person_image = resize_and_crop(person_image, (width, height))
+    # 高分辨率生成细节更好；6G 显存不够就自动降到 512x768 重试
+    for w, h in ((width, height), (512, 768)):
+        if (w, h) != (width, height):
+            print(f"显存不足，已自动降到 {w}x{h} 重新生成")
+        try:
+            # 人物图裁到 w x h
+            person = resize_and_crop(person_image, (w, h))
 
-    # 衣服图按类型只留上半/下半，再等比缩放到 512x768
-    w, h = cloth_image.size
-    if cloth_type == "upper":
-        cloth_image = cloth_image.crop((0, 0, w, int(h * 0.70)))
-    elif cloth_type == "lower":
-        cloth_image = cloth_image.crop((0, int(h * 0.30), w, h))
-    cloth_image = resize_and_padding(cloth_image, (width, height))
+            # 衣服图按类型只留上半/下半，再等比填充到 w x h
+            cw, ch = cloth_image.size
+            cloth = cloth_image
+            if cloth_type == "upper":
+                cloth = cloth.crop((0, 0, cw, int(ch * 0.70)))
+            elif cloth_type == "lower":
+                cloth = cloth.crop((0, int(ch * 0.30), cw, ch))
+            cloth = resize_and_padding(cloth, (w, h))
 
-    # 自动生成换衣蒙版：蒙版内是要重绘新衣服的区域
-    mask = _automasker(person_image, mask_type=cloth_type)["mask"]
-    mask = resize_and_crop(mask, (width, height))
+            # 自动生成换衣蒙版：蒙版内是要重绘新衣服的区域
+            mask = _automasker(person, mask_type=cloth_type)["mask"]
+            mask = resize_and_crop(mask, (w, h))
 
-    with torch.inference_mode():
-        result = _pipeline(
-            image=person_image,
-            condition_image=cloth_image,
-            mask=mask,
-            num_inference_steps=num_inference_steps,
-            guidance_scale=guidance_scale,
-            height=height,
-            width=width,
-            generator=torch.Generator(device="cuda").manual_seed(seed),
-            callback=progress_callback,
-        )
+            with torch.inference_mode():
+                result = _pipeline(
+                    image=person,
+                    condition_image=cloth,
+                    mask=mask,
+                    num_inference_steps=num_inference_steps,
+                    guidance_scale=guidance_scale,
+                    height=h,
+                    width=w,
+                    generator=torch.Generator(device="cuda").manual_seed(seed),
+                    callback=progress_callback,
+                )
 
-    result = result[0] if isinstance(result, list) else result
-    return result.resize(person_image.size, Image.LANCZOS)
+            result = result[0] if isinstance(result, list) else result
+            return result.resize(person.size, Image.LANCZOS)
+        except torch.cuda.OutOfMemoryError:
+            torch.cuda.empty_cache()
+            if (w, h) == (512, 768):
+                raise
+
+    raise RuntimeError("生成失败")

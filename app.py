@@ -52,9 +52,10 @@ with gr.Blocks(title="AI 虚拟试衣", css="footer{display:none !important}") a
     gr.Markdown("# AI 虚拟试衣\n上传一张人物照片和一张衣服图片，自动生成试穿效果。")
 
     with gr.Row():
-        with gr.Column(scale=1):
-            person_input = gr.Image(label="人物照片", type="pil", sources=["upload"])
-            cloth_input = gr.Image(label="衣服图片", type="pil", sources=["upload"])
+        with gr.Column(scale=3):
+            with gr.Row():
+                person_input = gr.Image(label="人物照片", type="pil", sources=["upload"], height=340)
+                cloth_input = gr.Image(label="衣服图片", type="pil", sources=["upload"], height=340)
             cloth_type = gr.Radio(
                 label="衣物类型",
                 choices=[
@@ -66,15 +67,15 @@ with gr.Blocks(title="AI 虚拟试衣", css="footer{display:none !important}") a
             )
             submit_btn = gr.Button("生成试穿效果", variant="primary")
 
-        with gr.Column(scale=1):
-            result_output = gr.Image(label="试穿效果", type="pil", height=500)
+        with gr.Column(scale=4):
+            result_output = gr.Image(label="试穿效果", type="pil", height=620)
             status = gr.Textbox(label="状态", interactive=False)
 
     submit_btn.click(
         generate_tryon,
         inputs=[person_input, cloth_input, cloth_type],
         outputs=[result_output, status],
-        api_name=False,  # 只做本地网页，不开放 API
+        api_name=False,  # 只做本地网页
     )
 
 if __name__ == "__main__":
