@@ -5,14 +5,14 @@ __pycache__/
 dist/
 build/
 
-# 虚拟环境（太大，不入 Git）
+# 虚拟环境
 env/
 .conda/
 
-# 模型权重（太大，单独下载）
+# 模型权重
 models/
 
-# 预下载的 wheel 文件（太大，单独下载）
+# 预下载的 wheel 文件
 wheels/
 
 # IDE

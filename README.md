@@ -21,7 +21,6 @@ conda create -n ootd python=3.10 -y
 conda activate ootd
 
 # 必须装 CUDA 版 torch，直接 pip install torch 装的是 CPU 版
-# RTX 50 系显卡请装 cu128 版：把命令里的 cu118 改成 cu128
 pip install torch==2.4.1+cu118 torchvision==0.19.1+cu118 --index-url https://download.pytorch.org/whl/cu118
 pip install -r requirements.txt
 ```
@@ -69,10 +68,6 @@ python app.py
 └── models/         # 模型权重，太大不入库，需自行下载
 ```
 
-## 对原项目做了哪些改动
-
-- SCHP 人体解析原本依赖 InPlaceABN（要 C++ 编译），改成直接继承 `nn.BatchNorm2d`，纯 Python 可跑；顺带修了因此导致的 BN 权重加载不上、蒙版全黑的问题。
-- DensePose 原本依赖 detectron2，装起来太重，用桩实现代替（蒙版主要靠 SCHP 生成，影响不大）。
 - 推理统一用 fp16 半精度，6G 显存可以正常跑。
 - 用 Gradio 写了个网页界面，上传图片 + 选衣物类别即可，不需要写文字描述。
 
