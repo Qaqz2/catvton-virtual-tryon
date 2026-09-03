@@ -29,11 +29,8 @@ _CATVTON_DIR = os.path.join(_PROJECT_ROOT, "CatVTON")
 
 if not os.path.isdir(_CATVTON_DIR):
     raise FileNotFoundError(
-        "未找到 CatVTON 目录！请先克隆仓库：\n"
-        "  cd E:\\ai\\ootd\n"
-        "  git clone https://github.com/Zheng-Chong/CatVTON.git\n\n"
-        "如果 GitHub 连不上，使用镜像：\n"
-        "  git clone https://gitclone.com/github.com/Zheng-Chong/CatVTON.git"
+        "未找到 CatVTON 目录。请确认克隆的是完整仓库，"
+        "根目录下应包含 CatVTON/ 文件夹（模型代码已随仓库提供）。"
     )
 
 if _CATVTON_DIR not in sys.path:
@@ -137,9 +134,15 @@ def load_model(
             break
 
     if not catvton_found:
-        print("  [INFO] CatVTON 权重未找到，从 HuggingFace/ModelScope 下载...")
-        repo_path = snapshot_download(repo_id=resume_path)
-        print(f"  [OK] CatVTON 下载到: {repo_path}")
+        print("  [INFO] CatVTON 权重未找到，尝试自动下载...")
+        try:
+            repo_path = snapshot_download(repo_id=resume_path)
+            print(f"  [OK] CatVTON 下载到: {repo_path}")
+        except Exception as e:
+            raise RuntimeError(
+                "CatVTON 权重自动下载失败。请手动下载后放到 models/CatVTON/ 目录，"
+                "再重新运行。下载地址见 README「下载模型权重」一节。"
+            ) from e
 
     # ── SD Inpainting 基础模型 ──
     base_found = False

@@ -21,6 +21,7 @@ conda create -n ootd python=3.10 -y
 conda activate ootd
 
 # 必须装 CUDA 版 torch，直接 pip install torch 装的是 CPU 版
+# RTX 50 系显卡请装 cu128 版：把命令里的 cu118 改成 cu128
 pip install torch==2.4.1+cu118 torchvision==0.19.1+cu118 --index-url https://download.pytorch.org/whl/cu118
 pip install -r requirements.txt
 ```
@@ -30,10 +31,12 @@ torch 的 wheel 比较大，国内下载慢的话可以从上海交大镜像下�
 
 **2. 下载模型权重**
 
-需要两个模型，代码会自动从 HuggingFace / 魔搭下载，也可以手动放好（推荐）：
+需要两个模型，建议手动下载放好（自动下载在国内网络下不稳定）：
 
-- CatVTON 权重（约 500M）：https://huggingface.co/zhengchong/CatVTON
-  下载后放到 `models/CatVTON/`：
+- CatVTON 权重（约 500M），下载地址：
+  - 国内：https://hf-mirror.com/zhengchong/CatVTON
+  - 海外：https://huggingface.co/zhengchong/CatVTON
+  只需要里面的 3 样东西，放到 `models/CatVTON/`：
 
 ```
 models/CatVTON/
@@ -46,7 +49,7 @@ models/CatVTON/
 ```
 
 - Stable Diffusion v1.5 inpainting 基础模型（约 5G）：https://modelscope.cn/models/AI-ModelScope/stable-diffusion-inpainting
-  可以放到 `models/stable-diffusion-inpainting/`，不放也行，运行时会自动下载到缓存目录。
+  运行时会自动下载；如果下载太慢或失败，就把整个模型放到 `models/stable-diffusion-inpainting/`（目录里要有 model_index.json）。
 
 **3. 启动**
 
