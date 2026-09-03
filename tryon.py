@@ -106,11 +106,11 @@ def try_on(
     person_image,
     cloth_image,
     cloth_type="overall",
-    num_inference_steps=30,
-    guidance_scale=3.0,
+    num_inference_steps=50,
+    guidance_scale=2.5,
     seed=42,
-    width=640,
-    height=960,
+    width=768,
+    height=1024,
     progress_callback=None,
 ):
     if _pipeline is None:
@@ -119,8 +119,8 @@ def try_on(
     from utils import resize_and_crop, resize_and_padding
     import torch
 
-    # 高分辨率生成细节更好；6G 显存不够就自动降到 512x768 重试
-    for w, h in ((width, height), (512, 768)):
+    # 768x1024 是模型的训练分辨率，效果最好；显存不够就逐级降档重试
+    for w, h in ((width, height), (640, 960), (512, 768)):
         if (w, h) != (width, height):
             print(f"显存不足，已自动降到 {w}x{h} 重新生成")
         try:
@@ -149,7 +149,7 @@ def try_on(
                     guidance_scale=guidance_scale,
                     height=h,
                     width=w,
-                    generator=torch.Generator(device="cuda").manual_seed(seed),
+                    generator=torch.Generator(device=_pipeline.device).manual_seed(seed),
                     callback=progress_callback,
                 )
 
