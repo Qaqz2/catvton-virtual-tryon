@@ -45,7 +45,7 @@ PROTECT_CLOTH_PARTS = {
     'outer': {'ATR': ['Dress', 'Pants', 'Skirt'], 'LIP': ['Upper-clothes', 'Dress', 'Pants', 'Skirt', 'Jumpsuits']}
 }
 MASK_CLOTH_PARTS = {
-    'upper': ['Upper-clothes', 'Coat', 'Dress', 'Jumpsuits'],
+    'upper': ['Upper-clothes', 'Coat', 'Dress', 'Jumpsuits', 'Left-arm', 'Right-arm'],
     'lower': ['Pants', 'Skirt', 'Dress', 'Jumpsuits'],
     'overall': ['Upper-clothes', 'Dress', 'Pants', 'Skirt', 'Coat', 'Jumpsuits'],
     'inner': ['Upper-clothes'], 'outer': ['Coat',]
