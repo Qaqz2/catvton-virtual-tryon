@@ -273,12 +273,6 @@ def try_on(
     # 蒙版统一裁剪到与人物图相同的尺寸，交给 pipeline 内部处理（保持 PIL 格式）
     mask = resize_and_crop(mask, (width, height))
 
-    import numpy as np
-    import cv2
-
-    person_np = np.array(person_image).astype(np.float32)
-    mask_np = np.array(mask).astype(np.float32) / 255.0
-
     # ── 第 3 步：模型推理 ──
     with torch.inference_mode():
         generator = torch.Generator(device="cuda").manual_seed(seed)
@@ -296,35 +290,5 @@ def try_on(
 
     # pipeline 返回图片列表，取第一张
     # pipeline 内部已做 inpainting：蒙版外=原图，蒙版内=生成新衣服
-    # 不再做额外的边缘羽化混合——那会把原图旧衣服混回结果里
     result = result[0] if isinstance(result, list) else result
-    result_np = np.array(result.resize(person_image.size, Image.LANCZOS)).astype(np.float32)
-
-    # ── 第 4 步：肤色保护（仅限蒙版内部） ──
-    # 模型在蒙版内重新生成皮肤时可能偏暗/偏粗。
-    # 只在蒙版覆盖区域内，把"原图和结果图都判定为皮肤"的像素替换回原图肤色。
-    # 限制在蒙版内可以避免误伤蒙版外的新衣服。
-    mask_bool = (mask_np > 0.5).astype(np.uint8)
-
-    def _skin_mask_narrow(img_np):
-        """精确肤色检测（原图用）"""
-        ycrcb = cv2.cvtColor(img_np.astype(np.uint8), cv2.COLOR_RGB2YCrCb)
-        return cv2.inRange(ycrcb, (0, 133, 77), (255, 173, 127))
-
-    def _skin_mask_wide(img_np):
-        """宽范围肤色检测（结果图用，能抓到模型生成的偏暗肤色）"""
-        ycrcb = cv2.cvtColor(img_np.astype(np.uint8), cv2.COLOR_RGB2YCrCb)
-        return cv2.inRange(ycrcb, (0, 125, 70), (255, 185, 140))
-
-    person_skin = _skin_mask_narrow(person_np)
-    result_skin = _skin_mask_wide(result_np)
-    # 只在蒙版内部做肤色保护
-    preserve = cv2.bitwise_and(cv2.bitwise_and(person_skin, result_skin), mask_bool)
-    # 轻微膨胀+高斯模糊，柔和过渡
-    preserve = cv2.dilate(preserve, np.ones((5, 5), np.uint8), iterations=1)
-    preserve_f = cv2.GaussianBlur(preserve.astype(np.float32) / 255, (11, 11), 0)
-    preserve_3ch = np.stack([preserve_f] * 3, axis=-1)
-    result_np = result_np * (1 - preserve_3ch) + person_np * preserve_3ch
-
-    result = Image.fromarray(result_np.clip(0, 255).astype(np.uint8))
-    return result
+    return result.resize(person_image.size, Image.LANCZOS)
