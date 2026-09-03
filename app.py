@@ -48,7 +48,7 @@ def generate_tryon(person_img, cloth_img, cloth_type):
         yield state["result"], "生成完成"
 
 
-with gr.Blocks(title="AI 虚拟试衣") as demo:
+with gr.Blocks(title="AI 虚拟试衣", css="footer{display:none !important}") as demo:
     gr.Markdown("# AI 虚拟试衣\n上传一张人物照片和一张衣服图片，自动生成试穿效果。")
 
     with gr.Row():
@@ -85,4 +85,4 @@ if __name__ == "__main__":
     net.url_ok = lambda url: True
 
     demo.queue()
-    demo.launch(server_name="127.0.0.1", server_port=7860)
+    demo.launch(server_name="127.0.0.1", server_port=7860, show_api=False)
